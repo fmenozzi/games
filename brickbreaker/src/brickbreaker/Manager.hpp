@@ -60,7 +60,7 @@ public:
     }
     
     template<typename T> 
-    std::vector<Entity*>& getAll()
+    const std::vector<Entity*>& getAll()
     { 
         return groupedEntities[typeid(T).hash_code()]; 
     }

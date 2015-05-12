@@ -77,15 +77,19 @@ public:
 
         manager.create<Ball>(WIN_WIDTH / 2.f, WIN_HEIGHT / 2.f);
         manager.create<Paddle>(WIN_WIDTH / 2, WIN_HEIGHT - 50);
+
+        window.clear(sf::Color::White);
     }
 
     void run()
     {
-        auto recenterTextBox = [&](const std::string& text) {
+        auto recenterTextBox = [this](const std::string& text) {
+            textState.setString(text);
+
             auto textBox = textState.getLocalBounds();
             textState.setOrigin(textBox.left + textBox.width/2.f, textBox.top + textBox.height/2.f);
             textState.setPosition(sf::Vector2f(WIN_WIDTH/2.f, WIN_HEIGHT/2.f));
-            textState.setString(text);
+            
         };
 
         window.clear(sf::Color::White);
@@ -109,33 +113,15 @@ public:
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R)) 
                 restart();
 
-            // If the game is not in progress, do not draw or update            
-            // game elements and display information to the player.
-            if (state != State::InProgress) {
-                if (state == State::Paused) 
-                    recenterTextBox("Paused");
-                else if (state == State::GameOver) 
-                    recenterTextBox("Game Over!");
-                else if (state == State::Victory) 
-                    recenterTextBox("You Win!");
-
-                window.draw(textState);         
-            } else {
-                // If there are no more balls on the screen, spawn a 
-                // new one and remove a life.
+            if (state == State::InProgress) {
                 if (manager.getAll<Ball>().empty()) {
                     manager.create<Ball>(WIN_WIDTH / 2.f, WIN_HEIGHT / 2.f);
-                    
                     --remainingLives;
                 }
 
-                // If there are no more bricks on the screen, 
-                // the player won!
                 if (manager.getAll<Brick>().empty()) 
                     state = State::Victory;
 
-                // If the player has no more remaining lives, 
-                // it's game over!
                 if (remainingLives <= 0) 
                     state = State::GameOver;
 
@@ -158,6 +144,15 @@ public:
 
                 textLives.setString("Lives: " + std::to_string(remainingLives));
                 window.draw(textLives);
+            } else {
+                if (state == State::Paused) 
+                    recenterTextBox("Paused");
+                else if (state == State::GameOver) 
+                    recenterTextBox("Game Over!");
+                else if (state == State::Victory) 
+                    recenterTextBox("You Win!");
+
+                window.draw(textState);  
             }
 
             window.display();
