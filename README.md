@@ -28,3 +28,6 @@ A collection of games written in C++
     my C++ on Linux. Sue me.)
     
 3. There should now be a slew of executables in your `build` directory, one for each game. Have fun!
+
+## License
+All game source is licensed under the [MIT License](http://opensource.org/licenses/MIT)
