@@ -40,7 +40,7 @@ public:
     { 
         window.setFramerateLimit(60); 
 
-        liberationSans.loadFromFile(R"(/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf)");
+        liberationSans.loadFromFile(R"(../resources/fonts/LiberationSans-Regular.ttf)");
 
         textState.setFont(liberationSans);
         textState.setCharacterSize(35.f);
