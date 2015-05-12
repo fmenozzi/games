@@ -1,5 +1,5 @@
 # games
-A collection of games written in C++
+A collection of games written in C++11
 
 ## Building from source
 1. Make sure you have installed the following dependencies:
