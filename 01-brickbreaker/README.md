@@ -8,7 +8,7 @@ Break all the bricks to win!
   * `Esc` to quit
 
 ## Credits
-This games's source is based on the [source](https://github.com/SuperV1234/cppcon2014) from [Vittorio Romeo's](http://vittorioromeo.info/index.html) talk at CppCon 2014.
+This game's source is based on the [source](https://github.com/SuperV1234/cppcon2014) from [Vittorio Romeo's](http://vittorioromeo.info/index.html) talk at CppCon 2014.
 
 The source is essentially unchanged, except for the following:
   * Change compliance from C++14 to C++11
