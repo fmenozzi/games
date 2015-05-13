@@ -1,6 +1,8 @@
 # Brickbreaker
 Break all the bricks to win!
 
+![alt tag](screenshots/brickbreaker-screenshot.png)
+
 ## Controls
   * Left and right arrow keys to move the paddle
   * `p` to pause
