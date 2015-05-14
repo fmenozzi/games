@@ -10,16 +10,19 @@
 
 #include <pong/make_unique.hpp>
 #include <pong/Entity.hpp>
+#include <pong/Ball.hpp>
 
 class Manager
 {
 private:
-    std::vector<std::unique_ptr<Entity>>        entities;
-    std::map<std::size_t, std::vector<Entity*>> groupedEntities;
+    static std::vector<std::unique_ptr<Entity>>        entities;
+    static std::map<std::size_t, std::vector<Entity*>> groupedEntities;
 
 public:
+    static bool ballOnLeftSideOfScreen;
+
     template<typename T, typename... TArgs> 
-    T& create(TArgs&&... mArgs)
+    static T& create(TArgs&&... mArgs)
     {
         static_assert(std::is_base_of<Entity, T>::value, "'T' must be derived from 'Entity'");
 
@@ -32,7 +35,7 @@ public:
         return *ptr;
     }   
 
-    void refresh() 
+    static void refresh() 
     {
         using std::remove_if;
         using std::begin;
@@ -55,33 +58,42 @@ public:
         );
     }
 
-    void clear() 
+    static void clear() 
     { 
         entities.clear(); 
     }
 
-    void update()                           
+    static void update()                           
     { 
+        extern unsigned int WIN_WIDTH;
+
         for (auto& e : entities) 
             e->update(); 
+
+        ballOnLeftSideOfScreen = getAll<Ball>()[0]->x() < WIN_WIDTH/2.f;
     }
 
-    void draw(sf::RenderWindow& mTarget)    
+    static void draw(sf::RenderWindow& mTarget)    
     { 
         for (auto& e : entities) 
             e->draw(mTarget); 
     }
 
     template<typename T> 
-    const std::vector<Entity*>& getAll()
+    static const std::vector<Entity*>& getAll()
     { 
         return groupedEntities[typeid(T).hash_code()]; 
     }
 
     template<typename T, typename TFunc> 
-    void forEach(const TFunc& mFunc) 
+    static void forEach(const TFunc& mFunc) 
     {
         for (auto ptr : getAll<T>()) 
             mFunc(*reinterpret_cast<T*>(ptr));
     }
 };
+
+std::vector<std::unique_ptr<Entity>>        Manager::entities;
+std::map<std::size_t, std::vector<Entity*>> Manager::groupedEntities;
+
+bool Manager::ballOnLeftSideOfScreen;

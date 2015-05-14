@@ -1,8 +1,6 @@
 #include <pong/Paddle.hpp>
 #include <pong/Ball.hpp>
 
-#include <iostream>
-
 struct CollisionManager
 {
     static bool isIntersecting(const Paddle& paddle, const Ball& ball) noexcept
@@ -23,8 +21,8 @@ struct CollisionManager
         float overlapTop{ball.bottom() - paddle.top()};
         float overlapBottom{paddle.bottom() - ball.top()};
 
-        bool ballFromLeft(std::abs(overlapLeft) < std::abs(overlapRight));
-        bool ballFromTop(std::abs(overlapTop) < std::abs(overlapBottom));
+        bool ballFromLeft{std::abs(overlapLeft) < std::abs(overlapRight)};
+        bool ballFromTop{std::abs(overlapTop) < std::abs(overlapBottom)};
 
         float minOverlapX{ballFromLeft ? overlapLeft : overlapRight};
         float minOverlapY{ballFromTop ? overlapTop : overlapBottom};

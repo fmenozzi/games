@@ -35,7 +35,7 @@ private:
 public:
     Game() 
     { 
-        window.setFramerateLimit(60); 
+        window.setVerticalSyncEnabled(true);
 
         liberationSans.loadFromFile(R"(../resources/fonts/LiberationSans-Regular.ttf)");
 
@@ -57,7 +57,7 @@ public:
         auto leftScoreBox = textLeftScore.getLocalBounds();
         textLeftScore.setOrigin(leftScoreBox.left + leftScoreBox.width/2.f, 
                                 leftScoreBox.top  + leftScoreBox.height/2.f);
-        textLeftScore.setPosition(WIN_WIDTH/2.f - (10 + leftScoreBox.width/2.f), 30);
+        textLeftScore.setPosition(WIN_WIDTH/2.f - (15 + leftScoreBox.width/2.f), 30);
 
         // Text for right player's score
         textRightScore.setString("0");
@@ -67,7 +67,7 @@ public:
         auto rightScoreBox = textRightScore.getLocalBounds();
         textRightScore.setOrigin(rightScoreBox.left + rightScoreBox.width/2.f, 
                                  rightScoreBox.top  + rightScoreBox.height/2.f);
-        textRightScore.setPosition(WIN_WIDTH/2.f + (10 + rightScoreBox.width/2.f), 30);
+        textRightScore.setPosition(WIN_WIDTH/2.f + (15 + rightScoreBox.width/2.f), 30);
     }
 
     void restart()
@@ -77,12 +77,12 @@ public:
 
         state = State::Paused;
 
-        manager.clear();
+        Manager::clear();
 
-        manager.create<Ball>(WIN_WIDTH / 2.f, WIN_HEIGHT / 2.f);
+        Manager::create<Ball>(WIN_WIDTH / 2.f, WIN_HEIGHT / 2.f);
 
-        manager.create<Paddle>(20.f,             WIN_HEIGHT / 2.f);
-        manager.create<Paddle>(WIN_WIDTH - 20.f, WIN_HEIGHT / 2.f);
+        Manager::create<Paddle>(20.f,             WIN_HEIGHT / 2.f);
+        Manager::create<Paddle>(WIN_WIDTH - 20.f, WIN_HEIGHT / 2.f);
 
         window.clear(sf::Color::White);
     }
@@ -116,8 +116,9 @@ public:
             textState.setString(text);
 
             auto textBox = textState.getLocalBounds();
-            textState.setOrigin(textBox.left + textBox.width/2.f, textBox.top + textBox.height/2.f);
-            textState.setPosition(sf::Vector2f(WIN_WIDTH/2.f, WIN_HEIGHT/2.f));
+            textState.setOrigin(textBox.left + textBox.width/2.f, 
+                                textBox.top  + textBox.height/2.f);
+            textState.setPosition(WIN_WIDTH/2.f, WIN_HEIGHT/2.f);
             
         };
 
@@ -128,38 +129,39 @@ public:
                 break;
 
             if (state == State::InProgress) {
-                if (manager.getAll<Ball>().empty()) {
-                    manager.create<Ball>(WIN_WIDTH / 2.f, WIN_HEIGHT / 2.f);
-
-                    if (manager.getAll<Ball>()[0]->onLeftSideOfScreen)
-                        leftScore++;
-                    else
+                if (Manager::getAll<Ball>().empty()) {
+                    if (Manager::ballOnLeftSideOfScreen)
                         rightScore++;
+                    else
+                        leftScore++;
+
+                    Manager::create<Ball>(WIN_WIDTH / 2.f, WIN_HEIGHT / 2.f);
                 }
 
                 if (leftScore == MAX_SCORE)
                     state = State::LeftVictory;
                 else if (rightScore == MAX_SCORE)
                     state = State::RightVictory;
+                else {
+                    Manager::update();
 
-                manager.update();
-
-                manager.forEach<Ball>([this] (Ball& mBall) {
-                    manager.forEach<Paddle>([&mBall] (Paddle& mPaddle) {
-                        CollisionManager::solvePaddleBallCollision(mPaddle, mBall);
+                    Manager::forEach<Ball>([this] (Ball& ball) {
+                        Manager::forEach<Paddle>([&ball] (const Paddle& paddle) {
+                            CollisionManager::solvePaddleBallCollision(paddle, ball);
+                        });
                     });
-                });
 
-                manager.refresh();
+                    Manager::refresh();
 
-                window.clear(sf::Color::White);
-            
-                manager.draw(window);
+                    window.clear(sf::Color::White);
+                
+                    Manager::draw(window);
 
-                textLeftScore.setString(std::to_string(leftScore));
-                textRightScore.setString(std::to_string(rightScore));
-                window.draw(textLeftScore);
-                window.draw(textRightScore);
+                    textLeftScore.setString(std::to_string(leftScore));
+                    textRightScore.setString(std::to_string(rightScore));
+                    window.draw(textLeftScore);
+                    window.draw(textRightScore);
+                }
             } else {
                 if (state == State::Paused) 
                     recenterTextBox("Paused");

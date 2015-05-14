@@ -27,6 +27,7 @@ public:
     {
         shape.move(velocity);
         solveBoundCollisions();
+        solveSideOfScreen();
     }
 
     void draw(sf::RenderWindow& target) override
@@ -34,18 +35,23 @@ public:
         target.draw(shape);
     }
 
+    float x() const noexcept override
+    {
+        return shape.getPosition().x;
+    }
+
+    float y() const noexcept override
+    {
+        return shape.getPosition().y;
+    }
+
 private:
     void solveBoundCollisions()
     {
         extern unsigned int WIN_WIDTH, WIN_HEIGHT;
 
-        //if (left() < 0 or right() > WIN_WIDTH)
-        //    destroyed = 0;
-
-        if (left() < 0)
-            velocity.x = speed;
-        else if (right() > WIN_WIDTH)
-            velocity.x = -speed;
+        if (left() < 0 or right() > WIN_WIDTH)
+            destroyed = true;
 
         if (top() < 0)
             velocity.y = speed;
@@ -53,10 +59,10 @@ private:
             velocity.y = -speed;
     }
 
-    void solveScreenSide()
+    void solveSideOfScreen()
     {
         extern unsigned int WIN_WIDTH;
 
-        onLeftSideOfScreen = x() > WIN_WIDTH / 2.f;
+        onLeftSideOfScreen = x() < WIN_WIDTH/2.f;
     }
 };

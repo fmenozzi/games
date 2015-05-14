@@ -33,6 +33,16 @@ public:
         mTarget.draw(shape); 
     }
 
+    float x() const noexcept override
+    {
+        return shape.getPosition().x;
+    }
+
+    float y() const noexcept override
+    {
+        return shape.getPosition().y;
+    }
+
 private:
     void processPlayerInput()
     {
