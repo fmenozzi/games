@@ -1,3 +1,5 @@
+#pragma once 
+
 #include <pong/Paddle.hpp>
 #include <pong/Ball.hpp>
 

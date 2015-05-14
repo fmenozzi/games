@@ -138,11 +138,11 @@ public:
                     Manager::create<Ball>(WIN_WIDTH / 2.f, WIN_HEIGHT / 2.f);
                 }
 
-                if (leftScore == MAX_SCORE)
+                if (leftScore == MAX_SCORE) {
                     state = State::LeftVictory;
-                else if (rightScore == MAX_SCORE)
+                } else if (rightScore == MAX_SCORE) {
                     state = State::RightVictory;
-                else {
+                } else {
                     Manager::update();
 
                     Manager::forEach<Ball>([this] (Ball& ball) {
