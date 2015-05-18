@@ -7,6 +7,7 @@ class Entity
 public:
     bool destroyed{false};
     bool onLeftSideOfScreen{false};
+    bool onUpperSideOfScreen{false};
 
     virtual ~Entity() {}
     virtual void update() {} 

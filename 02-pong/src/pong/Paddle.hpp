@@ -4,33 +4,44 @@
 
 #include <pong/Entity.hpp>
 #include <pong/Rectangle.hpp>
+#include <pong/Manager.hpp>
 
 class Paddle : public Entity, public Rectangle
 {
 public:
-    const sf::Color defColor{sf::Color::Black};
-    static constexpr float defWidth{20.f}, defHeight{120.f};
-    static constexpr float defVelocity{8.f};
+    sf::Color color{sf::Color::Black};
+
+    static constexpr float width{20.f}, height{120.f};
+    static constexpr float speed{8.f};
 
     sf::Vector2f velocity;
 
-    Paddle(float mX, float mY) 
+    Paddle(float x, float y) 
     { 
-        shape.setPosition(mX, mY);
-        shape.setSize({defWidth, defHeight});
-        shape.setFillColor(defColor);
-        shape.setOrigin(defWidth / 2.f, defHeight / 2.f);
+        init(x,y);
     }
 
-    void update() override
+    void init(float x, float y)
     {
-        processPlayerInput();
+        shape.setPosition(x, y);
+        shape.setSize({width, height});
+        shape.setFillColor(color);
+        shape.setOrigin(width / 2.f, height / 2.f);
+    }
+
+    void update(bool isPlayerPaddle, bool ballIsMovingUp)
+    {
+        if (isPlayerPaddle)
+            processPlayerInput();
+        else
+            processAIInput(ballIsMovingUp);
+
         shape.move(velocity);
     }
 
-    void draw(sf::RenderWindow& mTarget) override 
+    void draw(sf::RenderWindow& target) override 
     { 
-        mTarget.draw(shape); 
+        target.draw(shape); 
     }
 
     float x() const noexcept override
@@ -48,9 +59,20 @@ private:
     {
         extern unsigned int WIN_HEIGHT;
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up) and top() > 0)
-            velocity.y = -defVelocity;
+            velocity.y = -speed;
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down) and bottom() < WIN_HEIGHT) 
-            velocity.y = defVelocity;
+            velocity.y = speed;
+        else
+            velocity.y = 0;
+    }
+
+    void processAIInput(bool ballIsMovingUp)
+    {
+        extern unsigned int WIN_HEIGHT;
+        if (ballIsMovingUp and top() > 0)
+            velocity.y = -speed;
+        else if (not ballIsMovingUp and bottom() < WIN_HEIGHT)
+            velocity.y = speed;
         else
             velocity.y = 0;
     }

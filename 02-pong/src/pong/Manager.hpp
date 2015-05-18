@@ -11,89 +11,50 @@
 #include <pong/make_unique.hpp>
 #include <pong/Entity.hpp>
 #include <pong/Ball.hpp>
+#include <pong/Paddle.hpp>
 
 class Manager
 {
-private:
-    static std::vector<std::unique_ptr<Entity>>        entities;
-    static std::map<std::size_t, std::vector<Entity*>> groupedEntities;
-
 public:
-    static bool ballOnLeftSideOfScreen;
+    static Ball ball;
+    static Paddle leftPaddle, rightPaddle;
 
-    template<typename T, typename... TArgs> 
-    static T& create(TArgs&&... mArgs)
+    static Ball& createBall(float x, float y)
     {
-        static_assert(std::is_base_of<Entity, T>::value, "'T' must be derived from 'Entity'");
-
-        auto uPtr = make_unique<T>(std::forward<TArgs>(mArgs)...);
-        auto ptr  = uPtr.get();
-
-        groupedEntities[typeid(T).hash_code()].emplace_back(ptr);
-        entities.emplace_back(std::move(uPtr));
-
-        return *ptr;
-    }   
-
-    static void refresh() 
-    {
-        using std::remove_if;
-        using std::begin;
-        using std::end;
-        using std::unique_ptr;
-
-        for (auto& pair : groupedEntities) {
-            auto& vector = pair.second;
-            vector.erase(remove_if(begin(vector),
-                                   end(vector),
-                                   [](Entity* mPtr){return mPtr->destroyed;}),
-                         end(vector)
-            );
-        }
-
-        entities.erase(remove_if(begin(entities),
-                                 end(entities),
-                                 [](const unique_ptr<Entity>& mUPtr) {return mUPtr->destroyed;}),
-                       end(entities)
-        );
+        ball.init(x,y);
+        ball.destroyed = false;
+        return ball;
     }
 
-    static void clear() 
-    { 
-        entities.clear(); 
+    static Paddle& createLeftPaddle(float x, float y)
+    {
+        leftPaddle.init(x,y);
+        return leftPaddle;
+    }
+
+    static Paddle& createRightPaddle(float x, float y)
+    {
+        rightPaddle.init(x,y);
+        return rightPaddle;
     }
 
     static void update()                           
     { 
-        extern unsigned int WIN_WIDTH;
+        ball.update();
 
-        for (auto& e : entities) 
-            e->update(); 
-
-        ballOnLeftSideOfScreen = getAll<Ball>()[0]->x() < WIN_WIDTH/2.f;
+        bool ballisMovingUp = ball.velocity.y < 0;
+        leftPaddle.update(true, ballisMovingUp);
+        rightPaddle.update(false, ballisMovingUp);
     }
 
-    static void draw(sf::RenderWindow& mTarget)    
+    static void draw(sf::RenderWindow& target)    
     { 
-        for (auto& e : entities) 
-            e->draw(mTarget); 
-    }
+        ball.draw(target);
 
-    template<typename T> 
-    static const std::vector<Entity*>& getAll()
-    { 
-        return groupedEntities[typeid(T).hash_code()]; 
-    }
-
-    template<typename T, typename TFunc> 
-    static void forEach(const TFunc& mFunc) 
-    {
-        for (auto ptr : getAll<T>()) 
-            mFunc(*reinterpret_cast<T*>(ptr));
+        leftPaddle.draw(target);
+        rightPaddle.draw(target);
     }
 };
 
-std::vector<std::unique_ptr<Entity>>        Manager::entities;
-std::map<std::size_t, std::vector<Entity*>> Manager::groupedEntities;
-
-bool Manager::ballOnLeftSideOfScreen;
+Ball Manager::ball{0,0};
+Paddle Manager::leftPaddle{0,0}, Manager::rightPaddle{0,0};

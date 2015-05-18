@@ -20,8 +20,6 @@ private:
 
     sf::RenderWindow window{{WIN_WIDTH, WIN_HEIGHT}, "Pong"};
     
-    Manager manager;
-
     sf::Font liberationSans;
     sf::Text textState, textLeftScore, textRightScore;
 
@@ -30,6 +28,7 @@ private:
     bool pausePressedLastFrame{false};
 
     int leftScore{0}, rightScore{0};
+
     static constexpr int MAX_SCORE{10};
 
 public:
@@ -77,12 +76,10 @@ public:
 
         state = State::Paused;
 
-        Manager::clear();
+        Manager::createBall(WIN_WIDTH/2.f, WIN_HEIGHT/2.f);
 
-        Manager::create<Ball>(WIN_WIDTH / 2.f, WIN_HEIGHT / 2.f);
-
-        Manager::create<Paddle>(20.f,             WIN_HEIGHT / 2.f);
-        Manager::create<Paddle>(WIN_WIDTH - 20.f, WIN_HEIGHT / 2.f);
+        Manager::createLeftPaddle(20.f,              WIN_HEIGHT/2.f);
+        Manager::createRightPaddle(WIN_WIDTH - 20.f, WIN_HEIGHT/2.f);
 
         window.clear(sf::Color::White);
     }
@@ -129,13 +126,13 @@ public:
                 break;
 
             if (state == State::InProgress) {
-                if (Manager::getAll<Ball>().empty()) {
-                    if (Manager::ballOnLeftSideOfScreen)
+                if (Manager::ball.destroyed) {
+                    if (Manager::ball.onLeftSideOfScreen)
                         rightScore++;
                     else
                         leftScore++;
 
-                    Manager::create<Ball>(WIN_WIDTH / 2.f, WIN_HEIGHT / 2.f);
+                    Manager::createBall(WIN_WIDTH/2.f, WIN_HEIGHT/2.f);
                 }
 
                 if (leftScore == MAX_SCORE) {
@@ -145,13 +142,8 @@ public:
                 } else {
                     Manager::update();
 
-                    Manager::forEach<Ball>([this] (Ball& ball) {
-                        Manager::forEach<Paddle>([&ball] (const Paddle& paddle) {
-                            CollisionManager::solvePaddleBallCollision(paddle, ball);
-                        });
-                    });
-
-                    Manager::refresh();
+                    CollisionManager::solvePaddleBallCollision(Manager::leftPaddle,  Manager::ball);
+                    CollisionManager::solvePaddleBallCollision(Manager::rightPaddle, Manager::ball);
 
                     window.clear(sf::Color::White);
                 
