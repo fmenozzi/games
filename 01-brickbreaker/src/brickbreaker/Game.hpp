@@ -38,7 +38,7 @@ private:
 public:
     Game() 
     { 
-        window.setFramerateLimit(60); 
+        window.setVerticalSyncEnabled(true);
 
         liberationSans.loadFromFile(R"(../resources/fonts/LiberationSans-Regular.ttf)");
 
