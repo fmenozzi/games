@@ -86,6 +86,14 @@ public:
 
     bool handleKeyboardInput()
     {
+        sf::Event event;
+        while (window.pollEvent(event)) { 
+            if (event.type == sf::Event::Closed) {
+                window.close();
+                return false;
+            }
+        }
+
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape)) 
             return false;
 

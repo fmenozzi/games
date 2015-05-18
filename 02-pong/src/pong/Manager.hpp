@@ -1,11 +1,5 @@
 #pragma once
 
-#include <vector>
-#include <map>
-#include <memory>
-#include <typeinfo>
-#include <algorithm>
-
 #include <SFML/Graphics.hpp>
 
 #include <pong/make_unique.hpp>
