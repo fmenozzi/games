@@ -2,6 +2,8 @@
 #include <brickbreaker/Ball.hpp>
 #include <brickbreaker/Brick.hpp>
 
+#include <cmath>
+
 struct CollisionManager
 {
     template<typename T1, typename T2> 

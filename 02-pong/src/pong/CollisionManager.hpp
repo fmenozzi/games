@@ -3,6 +3,8 @@
 #include <pong/Paddle.hpp>
 #include <pong/Ball.hpp>
 
+#include <cmath>
+
 struct CollisionManager
 {
     static bool isIntersecting(const Paddle& paddle, const Ball& ball) noexcept
