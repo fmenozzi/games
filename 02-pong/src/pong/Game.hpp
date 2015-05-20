@@ -12,6 +12,7 @@ class Game
 {
 private:
     enum class State {
+        Start,
         Paused, 
         InProgress, 
         LeftVictory,
@@ -74,7 +75,7 @@ public:
         leftScore  = 0;
         rightScore = 0;
 
-        state = State::Paused;
+        state = State::Start;
 
         Manager::createBall(WIN_WIDTH/2.f, WIN_HEIGHT/2.f);
 
@@ -98,7 +99,7 @@ public:
         // Pause game
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape)) {
             if (not pausePressedLastFrame) {
-                if (state == State::Paused) 
+                if (state == State::Paused or state == State::Start) 
                     state = State::InProgress;
                 else if (state == State::InProgress)
                     state = State::Paused;
@@ -172,6 +173,8 @@ public:
                 } else {
                     if (state == State::Paused) 
                         recenterTextBox("Paused");
+                    else if (state == State::Start)
+                        recenterTextBox("Press Esc to start");
                     else if (state == State::LeftVictory) 
                         recenterTextBox("Left Wins!");
                     else if (state == State::RightVictory)
