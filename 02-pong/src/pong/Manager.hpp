@@ -2,7 +2,6 @@
 
 #include <SFML/Graphics.hpp>
 
-#include <pong/make_unique.hpp>
 #include <pong/Entity.hpp>
 #include <pong/Ball.hpp>
 #include <pong/Paddle.hpp>
