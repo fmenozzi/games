@@ -12,8 +12,8 @@ class Paddle : public Entity, public Rectangle
 public:
     sf::Color color{sf::Color::Black};
 
-    static constexpr float width{20.f}, height{120.f};
-    static constexpr float speed{500.f};
+    static constexpr float width{PADDLE_WIDTH}, height{PADDLE_HEIGHT};
+    static constexpr float speed{PADDLE_SPEED};
 
     sf::Vector2f velocity;
 

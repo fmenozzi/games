@@ -11,8 +11,8 @@ class Ball : public Entity, public Circle
 public:
     sf::Color color{sf::Color::Black};
 
-    static constexpr float radius{10.f};
-    static constexpr float speed{500.f};
+    static constexpr float radius{BALL_RADIUS};
+    static constexpr float speed{BALL_SPEED};
 
     sf::Vector2f velocity;
 
