@@ -5,6 +5,7 @@
 #include <pong/Entity.hpp>
 #include <pong/Rectangle.hpp>
 #include <pong/Manager.hpp>
+#include <pong/Globals.hpp>
 
 class Paddle : public Entity, public Rectangle
 {
@@ -57,7 +58,6 @@ public:
 private:
     void processPlayerInput()
     {
-        extern unsigned int WIN_HEIGHT;
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up) and top() > 0)
             velocity.y = -speed;
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down) and bottom() < WIN_HEIGHT) 
@@ -68,7 +68,6 @@ private:
 
     void processAIInput(bool ballIsMovingUp)
     {
-        extern unsigned int WIN_HEIGHT;
         if (ballIsMovingUp and top() > 0)
             velocity.y = -speed;
         else if (not ballIsMovingUp and bottom() < WIN_HEIGHT)

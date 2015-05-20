@@ -4,6 +4,7 @@
 
 #include <pong/Entity.hpp>
 #include <pong/Circle.hpp>
+#include <pong/Globals.hpp>
 
 class Ball : public Entity, public Circle
 {
@@ -55,8 +56,6 @@ public:
 private:
     void solveBoundCollisions()
     {
-        extern unsigned int WIN_WIDTH, WIN_HEIGHT;
-
         if (left() < 0 or right() > WIN_WIDTH)
             destroyed = true;
 
@@ -68,8 +67,6 @@ private:
 
     void solveSideOfScreen()
     {
-        extern unsigned int WIN_WIDTH, WIN_HEIGHT;
-
         onLeftSideOfScreen  = x() < WIN_WIDTH/2.f;
         onUpperSideOfScreen = y() < WIN_HEIGHT/2.f;
     }

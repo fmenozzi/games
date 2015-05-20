@@ -6,7 +6,7 @@
 #include <pong/CollisionManager.hpp>
 #include <pong/Paddle.hpp>
 
-extern unsigned int WIN_WIDTH, WIN_HEIGHT;
+#include <pong/Globals.hpp>
 
 class Game
 {
