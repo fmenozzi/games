@@ -127,47 +127,58 @@ public:
 
         window.clear(sf::Color::White);
 
+        sf::Clock clock;
+        sf::Time  timeSinceLastUpdate = sf::Time::Zero;
+        sf::Time  TimePerFrame = sf::seconds(1.f / 60.f);
         while (window.isOpen()) {
             handleKeyboardInput();
 
-            if (state == State::InProgress) {
-                if (Manager::ball.destroyed) {
-                    if (Manager::ball.onLeftSideOfScreen)
-                        rightScore++;
-                    else
-                        leftScore++;
+            timeSinceLastUpdate += clock.restart();
 
-                    Manager::createBall(WIN_WIDTH/2.f, WIN_HEIGHT/2.f);
-                }
+            while (timeSinceLastUpdate > TimePerFrame) {
+                timeSinceLastUpdate -= TimePerFrame;
 
-                if (leftScore == MAX_SCORE) {
-                    state = State::LeftVictory;
-                } else if (rightScore == MAX_SCORE) {
-                    state = State::RightVictory;
+                handleKeyboardInput();
+
+                if (state == State::InProgress) {
+                    if (Manager::ball.destroyed) {
+                        if (Manager::ball.onLeftSideOfScreen)
+                            rightScore++;
+                        else
+                            leftScore++;
+
+                        Manager::createBall(WIN_WIDTH/2.f, WIN_HEIGHT/2.f);
+                    }
+
+                    if (leftScore == MAX_SCORE) {
+                        state = State::LeftVictory;
+                    } else if (rightScore == MAX_SCORE) {
+                        state = State::RightVictory;
+                    } else {
+                        Manager::update(TimePerFrame);
+
+                        CollisionManager::solvePaddleBallCollision(Manager::leftPaddle,  Manager::ball);
+                        CollisionManager::solvePaddleBallCollision(Manager::rightPaddle, Manager::ball);
+
+                        window.clear(sf::Color::White);
+                    
+                        Manager::draw(window);
+
+                        textLeftScore.setString(std::to_string(leftScore));
+                        textRightScore.setString(std::to_string(rightScore));
+                        window.draw(textLeftScore);
+                        window.draw(textRightScore);
+                    }
                 } else {
-                    Manager::update();
+                    if (state == State::Paused) 
+                        recenterTextBox("Paused");
+                    else if (state == State::LeftVictory) 
+                        recenterTextBox("Left Wins!");
+                    else if (state == State::RightVictory)
+                        recenterTextBox("Right Wins!");
 
-                    CollisionManager::solvePaddleBallCollision(Manager::leftPaddle,  Manager::ball);
-                    CollisionManager::solvePaddleBallCollision(Manager::rightPaddle, Manager::ball);
-
-                    window.clear(sf::Color::White);
-                
-                    Manager::draw(window);
-
-                    textLeftScore.setString(std::to_string(leftScore));
-                    textRightScore.setString(std::to_string(rightScore));
-                    window.draw(textLeftScore);
-                    window.draw(textRightScore);
+                    window.draw(textState);  
                 }
-            } else {
-                if (state == State::Paused) 
-                    recenterTextBox("Paused");
-                else if (state == State::LeftVictory) 
-                    recenterTextBox("Left Wins!");
-                else if (state == State::RightVictory)
-                    recenterTextBox("Right Wins!");
-
-                window.draw(textState);  
             }
 
             window.display();

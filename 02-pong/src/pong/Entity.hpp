@@ -10,7 +10,7 @@ public:
     bool onUpperSideOfScreen{false};
 
     virtual ~Entity() {}
-    virtual void update() {} 
+    virtual void update(sf::Time dt) {} 
     virtual void draw(sf::RenderWindow& mTarget) {}
 
     virtual float x() const noexcept = 0;

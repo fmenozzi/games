@@ -32,13 +32,14 @@ public:
         return rightPaddle;
     }
 
-    static void update()                           
+    static void update(sf::Time dt)                           
     { 
-        ball.update();
+        ball.update(dt);
 
         bool ballisMovingUp = ball.velocity.y < 0;
-        leftPaddle.update(true, ballisMovingUp);
-        rightPaddle.update(false, ballisMovingUp);
+        bool isPlayerPaddle = true;
+        leftPaddle.update(dt, isPlayerPaddle, ballisMovingUp);
+        rightPaddle.update(dt, not isPlayerPaddle, ballisMovingUp);
     }
 
     static void draw(sf::RenderWindow& target)    

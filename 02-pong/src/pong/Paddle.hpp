@@ -12,7 +12,7 @@ public:
     sf::Color color{sf::Color::Black};
 
     static constexpr float width{20.f}, height{120.f};
-    static constexpr float speed{8.f};
+    static constexpr float speed{500.f};
 
     sf::Vector2f velocity;
 
@@ -29,14 +29,14 @@ public:
         shape.setOrigin(width / 2.f, height / 2.f);
     }
 
-    void update(bool isPlayerPaddle, bool ballIsMovingUp)
+    void update(sf::Time dt, bool isPlayerPaddle, bool ballIsMovingUp)
     {
         if (isPlayerPaddle)
             processPlayerInput();
         else
             processAIInput(ballIsMovingUp);
 
-        shape.move(velocity);
+        shape.move(velocity * dt.asSeconds());
     }
 
     void draw(sf::RenderWindow& target) override 

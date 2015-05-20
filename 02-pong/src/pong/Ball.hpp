@@ -11,7 +11,7 @@ public:
     sf::Color color{sf::Color::Black};
 
     static constexpr float radius{10.f};
-    static constexpr float speed{8.f};
+    static constexpr float speed{500.f};
 
     sf::Vector2f velocity;
 
@@ -30,9 +30,9 @@ public:
         velocity = sf::Vector2f{-speed, -speed};
     }
 
-    void update() override
+    void update(sf::Time dt) override
     {
-        shape.move(velocity);
+        shape.move(velocity * dt.asSeconds());
         solveBoundCollisions();
         solveSideOfScreen();
     }
