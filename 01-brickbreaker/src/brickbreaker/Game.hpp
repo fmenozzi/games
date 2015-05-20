@@ -57,24 +57,23 @@ public:
         textLives.setColor(sf::Color::Red);
     }
 
-    bool handleKeyboardInput()
+    void handleKeyboardInput()
     {
+        // Close window
         sf::Event event;
         while (window.pollEvent(event)) { 
             if (event.type == sf::Event::Closed) {
                 window.close();
-                return false;
+                return;
             }
         }
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape)) 
-            return false;
-
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::P)) {
+        // Pause game
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape)) {
             if (not pausePressedLastFrame) {
                 if (state == State::Paused) 
                     state = State::InProgress;
-                else if (state == State::InProgress) 
+                else if (state == State::InProgress)
                     state = State::Paused;
             }
             pausePressedLastFrame = true;
@@ -82,10 +81,9 @@ public:
             pausePressedLastFrame = false;
         }
 
+        // Restart game
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R)) 
             restart();
-
-        return true;
     }
 
     void restart()
@@ -125,9 +123,8 @@ public:
 
         window.clear(sf::Color::White);
 
-        while (true) {
-            if (not handleKeyboardInput())
-                break;
+        while (window.isOpen()) {
+            handleKeyboardInput();
 
             if (state == State::InProgress) {
                 if (manager.getAll<Ball>().empty()) {
