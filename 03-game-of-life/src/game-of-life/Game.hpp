@@ -28,9 +28,9 @@ private:
     bool pausePressedLastFrame{false};
 
 public:
-	Game()
-	{
-		window.setVerticalSyncEnabled(true);
+    Game()
+    {
+        window.setVerticalSyncEnabled(true);
 
         liberationSans.loadFromFile(R"(../resources/fonts/LiberationSans-Regular.ttf)");
 
@@ -43,8 +43,9 @@ public:
         textState.setOrigin(stateBox.left + stateBox.width/2.f, 
                             stateBox.top  + stateBox.height/2.f);
         textState.setPosition(WIN_WIDTH/2.f, WIN_HEIGHT/2.f);
-	}
+    }
 
+    // Reset the state of the grid
     void restart()
     {
         state = State::Start;
@@ -52,35 +53,94 @@ public:
         current_world = std::array<bool, ROWS*COLS>{{false}};
         updated_world = std::array<bool, ROWS*COLS>{{false}};
 
+        // Add glider in upper left corner
+        current_world[idx(0,1)] = true;
+        current_world[idx(1,2)] = true;
+        current_world[idx(2,0)] = true;
+        current_world[idx(2,1)] = true;
+        current_world[idx(2,2)] = true;
+
         window.clear(sf::Color::White);
     }
 
-    void processEvents()
-    {
-    	sf::Event event;
-    	while (window.pollEvent(event)) {
-    		if (event.type == sf::Event::Closed)
-				window.close();
-    	}
-    }
-
-    void update()
-    {
-
-    }
-
-    void render()
-    {
-    	window.clear(sf::Color::White);
-    	window.display();
-    }
-
+    // Enter game loop
     void run()
     {
-    	while (window.isOpen()) {
-    		processEvents();
-    		update();
-    		render();
-    	}
+        sf::Time sleepTime = sf::seconds(0.1f);
+        while (window.isOpen()) {
+            processEvents();
+            update();
+            render();
+            sf::sleep(sleepTime);
+        }
+    }
+
+private:
+    // Process external events
+    void processEvents()
+    {
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed)
+                window.close();
+        }
+    }
+
+    // Update the state of the grid
+    void update()
+    {
+        // Calculate updated world
+        for (unsigned int r = 0; r < ROWS; r++)
+            for (unsigned int c = 0; c < COLS; c++)
+                updated_world[idx(r,c)] = liveOrDie(r, c, adjacentNeighbors(r,c));
+
+        // Update current world
+        for (unsigned int r = 0; r < ROWS; r++)
+            for (unsigned int c = 0; c < COLS; c++) 
+                current_world[idx(r,c)] = updated_world[idx(r,c)];
+    }
+
+    // Render the state of the grid to the window
+    void render()
+    {
+        window.clear(sf::Color::White);
+        for (unsigned int r = 0; r < ROWS; r++) {
+            for (unsigned int c = 0; c < COLS; c++) {
+                if (current_world[idx(r,c)]) {
+
+                } else {
+
+                }
+            }
+        }
+        window.display();
+    }
+
+    // Translate grid index to linear index
+    int idx(int r, int c)
+    {
+        return COLS*r + c;
+    }
+
+    // Determine whether a given cell should live or die
+    int liveOrDie(int r, int c, int n)
+    {
+        return n == 3 || (n == 2 && current_world[idx(r,c)]);
+    }
+
+    // Count number of neighbors around each cell, making
+    // sure not to count the cell itself
+    int adjacentNeighbors(unsigned int r, unsigned int c)
+    {
+        int n = 0;
+        for (unsigned int r1 = r-1; r1 < r+2; r1++)
+            for (unsigned int c1 = c-1; c1 < c+2; c1++)
+                if (current_world[idx(r1+ROWS % ROWS, c1+COLS % COLS)])
+                    n++;
+
+        if (current_world[idx(r,c)])
+            n--;
+
+        return n;
     }
 };
