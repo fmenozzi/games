@@ -30,18 +30,57 @@ private:
 public:
 	Game()
 	{
+		window.setVerticalSyncEnabled(true);
 
+        liberationSans.loadFromFile(R"(../resources/fonts/LiberationSans-Regular.ttf)");
+
+        // Text for game state
+        textState.setFont(liberationSans);
+        textState.setCharacterSize(35.f);
+        textState.setColor(sf::Color::Black);
+        textState.setString("Paused");
+        auto stateBox = textState.getLocalBounds();
+        textState.setOrigin(stateBox.left + stateBox.width/2.f, 
+                            stateBox.top  + stateBox.height/2.f);
+        textState.setPosition(WIN_WIDTH/2.f, WIN_HEIGHT/2.f);
 	}
 
     void restart()
     {
         state = State::Start;
 
+        current_world = std::array<bool, ROWS*COLS>{{false}};
+        updated_world = std::array<bool, ROWS*COLS>{{false}};
+
         window.clear(sf::Color::White);
+    }
+
+    void processEvents()
+    {
+    	sf::Event event;
+    	while (window.pollEvent(event)) {
+    		if (event.type == sf::Event::Closed)
+				window.close();
+    	}
+    }
+
+    void update()
+    {
+
+    }
+
+    void render()
+    {
+    	window.clear(sf::Color::White);
+    	window.display();
     }
 
     void run()
     {
-
+    	while (window.isOpen()) {
+    		processEvents();
+    		update();
+    		render();
+    	}
     }
 };
