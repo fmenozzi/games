@@ -15,6 +15,11 @@ INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/02-pong/src")
 FILE(GLOB_RECURSE PONG_SOURCES "${CMAKE_SOURCE_DIR}/02-pong/src/*.cpp")
 ADD_EXECUTABLE(pong ${PONG_SOURCES})
 
+# Game of Life
+INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/03-game-of-life/src")
+FILE(GLOB_RECURSE LIFE_SOURCES "${CMAKE_SOURCE_DIR}/03-game-of-life/src/*.cpp")
+ADD_EXECUTABLE(life ${LIFE_SOURCES})
+
 # SFML
 SET(SFML_ROOT "${CMAKE_SOURCE_DIR}/libs/SFML-2.2")
 SET(SFML_LIB_DIR "${SFML_ROOT}/build/lib")
@@ -27,6 +32,10 @@ TARGET_LINK_LIBRARIES(brickbreaker sfml-graphics
                            		   sfml-window
 )
 TARGET_LINK_LIBRARIES(pong sfml-graphics
+                           sfml-system
+                           sfml-window
+)
+TARGET_LINK_LIBRARIES(life sfml-graphics
                            sfml-system
                            sfml-window
 )
