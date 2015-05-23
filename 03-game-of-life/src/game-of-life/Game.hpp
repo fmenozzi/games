@@ -5,6 +5,7 @@
 #include <game-of-life/Globals.hpp>
 
 #include <array> 
+#include <iostream>
 
 class Game
 {
@@ -17,8 +18,9 @@ private:
 
     sf::RenderWindow window{{WIN_WIDTH, WIN_HEIGHT}, "Conway's Game of Life"};
 
-    std::array<bool, ROWS*COLS> current_world = {{false}};
-    std::array<bool, ROWS*COLS> updated_world = {{false}};
+    std::array<bool, ROWS*COLS>               current_world = {{false}};
+    std::array<bool, ROWS*COLS>               updated_world = {{false}};
+    std::array<sf::RectangleShape, ROWS*COLS> grid          = {{}};
     
     sf::Font liberationSans;
     sf::Text textState;
@@ -43,6 +45,18 @@ public:
         textState.setOrigin(stateBox.left + stateBox.width/2.f, 
                             stateBox.top  + stateBox.height/2.f);
         textState.setPosition(WIN_WIDTH/2.f, WIN_HEIGHT/2.f);
+
+        // Setup grid
+        for (int r = 0; r < ROWS; r++) {
+            for (int c = 0; c < COLS; c++) {
+                sf::RectangleShape cell;
+                cell.setOrigin(SQUARE_SIZE / 2.f, SQUARE_SIZE / 2.f);
+                cell.setPosition((c*SQUARE_SIZE)+(SQUARE_SIZE/2.f), (r*SQUARE_SIZE)+(SQUARE_SIZE/2.f));
+                cell.setSize({SQUARE_SIZE, SQUARE_SIZE});
+                cell.setFillColor(sf::Color::White);
+                grid[idx(r,c)] = cell;
+            }
+        }
     }
 
     // Reset the state of the grid
@@ -50,8 +64,8 @@ public:
     {
         state = State::Start;
 
-        current_world = std::array<bool, ROWS*COLS>{{false}};
-        updated_world = std::array<bool, ROWS*COLS>{{false}};
+        current_world.fill(false);
+        updated_world.fill(false);
 
         // Add glider in upper left corner
         current_world[idx(0,1)] = true;
@@ -69,8 +83,8 @@ public:
         sf::Time sleepTime = sf::seconds(0.1f);
         while (window.isOpen()) {
             processEvents();
-            update();
             render();
+            update();
             sf::sleep(sleepTime);
         }
     }
@@ -90,29 +104,24 @@ private:
     void update()
     {
         // Calculate updated world
-        for (unsigned int r = 0; r < ROWS; r++)
-            for (unsigned int c = 0; c < COLS; c++)
+        for (int r = 0; r < ROWS; r++)
+            for (int c = 0; c < COLS; c++)
                 updated_world[idx(r,c)] = liveOrDie(r, c, adjacentNeighbors(r,c));
 
         // Update current world
-        for (unsigned int r = 0; r < ROWS; r++)
-            for (unsigned int c = 0; c < COLS; c++) 
+        for (int r = 0; r < ROWS; r++)
+            for (int c = 0; c < COLS; c++) {
                 current_world[idx(r,c)] = updated_world[idx(r,c)];
+                grid[idx(r,c)].setFillColor(current_world[idx(r,c)] ? sf::Color::Black : sf::Color::White);
+            }
     }
 
     // Render the state of the grid to the window
     void render()
     {
         window.clear(sf::Color::White);
-        for (unsigned int r = 0; r < ROWS; r++) {
-            for (unsigned int c = 0; c < COLS; c++) {
-                if (current_world[idx(r,c)]) {
-
-                } else {
-
-                }
-            }
-        }
+        for (auto& cell : grid)
+            window.draw(cell);
         window.display();
     }
 
@@ -130,12 +139,12 @@ private:
 
     // Count number of neighbors around each cell, making
     // sure not to count the cell itself
-    int adjacentNeighbors(unsigned int r, unsigned int c)
+    int adjacentNeighbors(int r, int c)
     {
         int n = 0;
-        for (unsigned int r1 = r-1; r1 < r+2; r1++)
-            for (unsigned int c1 = c-1; c1 < c+2; c1++)
-                if (current_world[idx(r1+ROWS % ROWS, c1+COLS % COLS)])
+        for (int r1 = r-1; r1 < r+2; r1++)
+            for (int c1 = c-1; c1 < c+2; c1++)
+                if (current_world[idx((r1+ROWS) % ROWS, (c1+COLS) % COLS)])
                     n++;
 
         if (current_world[idx(r,c)])
