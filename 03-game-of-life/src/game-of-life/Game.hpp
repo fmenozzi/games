@@ -74,6 +74,12 @@ public:
         current_world[idx(2,1)] = true;
         current_world[idx(2,2)] = true;
 
+        // Add some other random shit
+        for (int i = 0; i < ROWS; i++)
+            current_world[idx(i % 11, (i + 3) % 7)] = true;
+        for (int i = 0; i < COLS; i++)
+            current_world[idx(i % 7, (i + 5) % 11)] = true;
+
         window.clear(sf::Color::White);
     }
 
