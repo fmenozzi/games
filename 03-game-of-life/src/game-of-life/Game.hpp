@@ -20,7 +20,7 @@ private:
 
     std::array<bool, ROWS*COLS>               current_world = {{false}};
     std::array<bool, ROWS*COLS>               updated_world = {{false}};
-    std::array<sf::RectangleShape, ROWS*COLS> grid          = {{}};
+    std::array<sf::RectangleShape, ROWS*COLS> grid;
     
     sf::Font liberationSans;
     sf::Text textState;
