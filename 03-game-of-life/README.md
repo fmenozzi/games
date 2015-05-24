@@ -1,4 +1,4 @@
-# [Conway's Game of Life!](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life)
+# [Conway's Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life)
 A cellular automaton with beautiful mathematical properties.
 
 ![alt tag](screenshots/life-screenshot.png)
