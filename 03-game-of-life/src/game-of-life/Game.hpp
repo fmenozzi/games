@@ -25,6 +25,8 @@ private:
     sf::Font liberationSans;
     sf::Text textState;
 
+    sf::Vector2i mousePosition;
+
     State state{State::Paused};
 
     bool pausePressedLastFrame{false};
@@ -68,6 +70,7 @@ public:
         updated_world.fill(false);
 
         // Add glider in upper left corner
+        /*
         current_world[idx(0,1)] = true;
         current_world[idx(1,2)] = true;
         current_world[idx(2,0)] = true;
@@ -79,6 +82,7 @@ public:
             current_world[idx(i % 11, (i + 3) % 7)] = true;
         for (int i = 0; i < COLS; i++)
             current_world[idx(i % 7, (i + 5) % 11)] = true;
+        */
 
         window.clear(sf::Color::White);
     }
@@ -86,6 +90,12 @@ public:
     // Enter game loop
     void run()
     {
+        while (state == State::Start) {
+            processStartEvents();
+            render();
+        }
+
+
         sf::Time sleepTime = sf::seconds(0.1f);
         while (window.isOpen()) {
             processEvents();
@@ -96,13 +106,40 @@ public:
     }
 
 private:
+    // Process events in start state
+    void processStartEvents()
+    {
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
+                window.close();
+            } else if (event.type == sf::Event::MouseButtonPressed) {
+                mousePosition = sf::Mouse::getPosition(window);
+                int mx = mousePosition.x;
+                int my = mousePosition.y;
+                if (0 <= mx and mx < WIN_WIDTH and 0 <= my and my < WIN_HEIGHT) {
+                    int gridIdx = idx(my / SQUARE_SIZE, mx / SQUARE_SIZE);
+
+                    grid[gridIdx].setFillColor(sf::Color::Black);
+                    current_world[gridIdx] = true;
+                }
+            }
+        }
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Return))
+            state = State::InProgress;
+    }
+
     // Process external events
     void processEvents()
     {
         sf::Event event;
         while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed)
+            if (event.type == sf::Event::Closed) {
                 window.close();
+            } else if (event.type == sf::Event::MouseButtonPressed) {
+        
+            }
         }
     }
 
@@ -115,11 +152,12 @@ private:
                 updated_world[idx(r,c)] = liveOrDie(r, c, adjacentNeighbors(r,c));
 
         // Update current world
-        for (int r = 0; r < ROWS; r++)
+        for (int r = 0; r < ROWS; r++) {
             for (int c = 0; c < COLS; c++) {
                 current_world[idx(r,c)] = updated_world[idx(r,c)];
                 grid[idx(r,c)].setFillColor(current_world[idx(r,c)] ? sf::Color::Black : sf::Color::White);
             }
+        }
     }
 
     // Render the state of the grid to the window
@@ -140,7 +178,7 @@ private:
     // Determine whether a given cell should live or die
     int liveOrDie(int r, int c, int n)
     {
-        return n == 3 || (n == 2 && current_world[idx(r,c)]);
+        return n == 3 or (n == 2 and current_world[idx(r,c)]);
     }
 
     // Count number of neighbors around each cell, making
