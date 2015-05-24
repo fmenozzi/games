@@ -16,37 +16,39 @@ private:
         InProgress
     };
 
-    sf::RenderWindow window{{WIN_WIDTH, WIN_HEIGHT}, "Conway's Game of Life"};
+    sf::RenderWindow mWindow{{WIN_WIDTH, WIN_HEIGHT}, "Conway's Game of Life"};
 
-    std::array<bool, ROWS*COLS>               current_world = {{false}};
-    std::array<bool, ROWS*COLS>               updated_world = {{false}};
-    std::array<sf::RectangleShape, ROWS*COLS> grid;
+    std::array<bool, ROWS*COLS>               mCurrentWorld = {{false}};
+    std::array<bool, ROWS*COLS>               mUpdatedWorld = {{false}};
+    std::array<sf::RectangleShape, ROWS*COLS> mGrid;
     
-    sf::Font liberationSans;
-    sf::Text textState;
+    sf::Font mLiberationSans;
+    sf::Text mTextState;
 
-    sf::Vector2i mousePosition;
+    sf::Vector2i mMousePosition;
 
-    State state{State::Paused};
+    sf::Color mCellColor{0,0,0,80};
 
-    bool pausePressedLastFrame{false};
+    State mState{State::Paused};
+
+    bool mPausePressedLastFrame{false};
 
 public:
     Game()
     {
-        window.setVerticalSyncEnabled(true);
+        mWindow.setVerticalSyncEnabled(true);
 
-        liberationSans.loadFromFile(R"(../resources/fonts/LiberationSans-Regular.ttf)");
+        mLiberationSans.loadFromFile(R"(../resources/fonts/LiberationSans-Regular.ttf)");
 
         // Text for game state
-        textState.setFont(liberationSans);
-        textState.setCharacterSize(35.f);
-        textState.setColor(sf::Color::Black);
-        textState.setString("Paused");
-        auto stateBox = textState.getLocalBounds();
-        textState.setOrigin(stateBox.left + stateBox.width/2.f, 
-                            stateBox.top  + stateBox.height/2.f);
-        textState.setPosition(WIN_WIDTH/2.f, WIN_HEIGHT/2.f);
+        mTextState.setFont(mLiberationSans);
+        mTextState.setCharacterSize(35.f);
+        mTextState.setColor(sf::Color::Black);
+        mTextState.setString("Paused");
+        auto mStateBox = mTextState.getLocalBounds();
+        mTextState.setOrigin(mStateBox.left + mStateBox.width/2.f, 
+                            mStateBox.top  + mStateBox.height/2.f);
+        mTextState.setPosition(WIN_WIDTH/2.f, WIN_HEIGHT/2.f);
 
         // Setup grid
         for (int r = 0; r < ROWS; r++) {
@@ -56,7 +58,7 @@ public:
                 cell.setPosition((c*SQUARE_SIZE)+(SQUARE_SIZE/2.f), (r*SQUARE_SIZE)+(SQUARE_SIZE/2.f));
                 cell.setSize({SQUARE_SIZE, SQUARE_SIZE});
                 cell.setFillColor(sf::Color::White);
-                grid[idx(r,c)] = cell;
+                mGrid[idx(r,c)] = cell;
             }
         }
     }
@@ -64,44 +66,33 @@ public:
     // Reset the state of the grid
     void restart()
     {
-        state = State::Start;
+        mState = State::Start;
 
-        current_world.fill(false);
-        updated_world.fill(false);
+        mCurrentWorld.fill(false);
+        mUpdatedWorld.fill(false);
 
-        // Add glider in upper left corner
-        /*
-        current_world[idx(0,1)] = true;
-        current_world[idx(1,2)] = true;
-        current_world[idx(2,0)] = true;
-        current_world[idx(2,1)] = true;
-        current_world[idx(2,2)] = true;
+        for (auto& cell : mGrid)
+            cell.setFillColor(sf::Color::White);
 
-        // Add some other random shit
-        for (int i = 0; i < ROWS; i++)
-            current_world[idx(i % 11, (i + 3) % 7)] = true;
-        for (int i = 0; i < COLS; i++)
-            current_world[idx(i % 7, (i + 5) % 11)] = true;
-        */
-
-        window.clear(sf::Color::White);
+        mWindow.clear(sf::Color::White);
     }
 
     // Enter game loop
     void run()
     {
-        while (state == State::Start) {
-            processStartEvents();
-            render();
-        }
-
-
         sf::Time sleepTime = sf::seconds(0.1f);
-        while (window.isOpen()) {
-            processEvents();
-            render();
-            update();
-            sf::sleep(sleepTime);
+        while (mWindow.isOpen()) {
+            if (mState == State::Start) {
+                processStartEvents();
+                render();
+            } else {
+                processEvents();
+                render();
+                if (mState == State::InProgress) {
+                    update();
+                    sf::sleep(sleepTime);
+                } 
+            }
         }
     }
 
@@ -110,37 +101,62 @@ private:
     void processStartEvents()
     {
         sf::Event event;
-        while (window.pollEvent(event)) {
+        while (mWindow.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
-                window.close();
+                mWindow.close();
             } else if (event.type == sf::Event::MouseButtonPressed) {
-                mousePosition = sf::Mouse::getPosition(window);
-                int mx = mousePosition.x;
-                int my = mousePosition.y;
+                mMousePosition = sf::Mouse::getPosition(mWindow);
+                int mx = mMousePosition.x;
+                int my = mMousePosition.y;
                 if (0 <= mx and mx < WIN_WIDTH and 0 <= my and my < WIN_HEIGHT) {
-                    int gridIdx = idx(my / SQUARE_SIZE, mx / SQUARE_SIZE);
+                    int mGridIdx = idx(my / SQUARE_SIZE, mx / SQUARE_SIZE);
 
-                    grid[gridIdx].setFillColor(sf::Color::Black);
-                    current_world[gridIdx] = true;
+                    mGrid[mGridIdx].setFillColor(mCellColor);
+                    mCurrentWorld[mGridIdx] = true;
                 }
             }
         }
 
+        // Start game
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Return))
-            state = State::InProgress;
+            mState = State::InProgress;
     }
 
     // Process external events
     void processEvents()
     {
         sf::Event event;
-        while (window.pollEvent(event)) {
+        while (mWindow.pollEvent(event)) { 
+            // Close window
             if (event.type == sf::Event::Closed) {
-                window.close();
-            } else if (event.type == sf::Event::MouseButtonPressed) {
-        
+                mWindow.close();
+                return;
+            } else if (event.type == sf::Event::KeyPressed) {
+                // Pause game
+                if (event.key.code == sf::Keyboard::Escape) {
+                    if (mState == State::Paused) 
+                        mState = State::InProgress;
+                    else if (mState == State::InProgress)
+                        mState = State::Paused;
+                    return;
+                } 
+
+                // Restart game
+                if (event.key.code == sf::Keyboard::R) {
+                    restart();
+                    return;
+                }
             }
         }
+    }
+
+    void recenterTextBox(const std::string& text)
+    {
+        mTextState.setString(text);
+        auto textBox = mTextState.getLocalBounds();
+        mTextState.setOrigin(textBox.left + textBox.width/2.f, 
+                             textBox.top  + textBox.height/2.f);
+        mTextState.setPosition(WIN_WIDTH/2.f, WIN_HEIGHT/2.f);
     }
 
     // Update the state of the grid
@@ -149,13 +165,13 @@ private:
         // Calculate updated world
         for (int r = 0; r < ROWS; r++)
             for (int c = 0; c < COLS; c++)
-                updated_world[idx(r,c)] = liveOrDie(r, c, adjacentNeighbors(r,c));
+                mUpdatedWorld[idx(r,c)] = liveOrDie(r, c, adjacentNeighbors(r,c));
 
         // Update current world
         for (int r = 0; r < ROWS; r++) {
             for (int c = 0; c < COLS; c++) {
-                current_world[idx(r,c)] = updated_world[idx(r,c)];
-                grid[idx(r,c)].setFillColor(current_world[idx(r,c)] ? sf::Color::Black : sf::Color::White);
+                mCurrentWorld[idx(r,c)] = mUpdatedWorld[idx(r,c)];
+                mGrid[idx(r,c)].setFillColor(mCurrentWorld[idx(r,c)] ? mCellColor : sf::Color::White);
             }
         }
     }
@@ -163,10 +179,10 @@ private:
     // Render the state of the grid to the window
     void render()
     {
-        window.clear(sf::Color::White);
-        for (auto& cell : grid)
-            window.draw(cell);
-        window.display();
+        mWindow.clear(sf::Color::White);
+        for (auto& cell : mGrid)
+            mWindow.draw(cell);
+        mWindow.display();
     }
 
     // Translate grid index to linear index
@@ -178,7 +194,7 @@ private:
     // Determine whether a given cell should live or die
     int liveOrDie(int r, int c, int n)
     {
-        return n == 3 or (n == 2 and current_world[idx(r,c)]);
+        return n == 3 or (n == 2 and mCurrentWorld[idx(r,c)]);
     }
 
     // Count number of neighbors around each cell, making
@@ -188,10 +204,10 @@ private:
         int n = 0;
         for (int r1 = r-1; r1 < r+2; r1++)
             for (int c1 = c-1; c1 < c+2; c1++)
-                if (current_world[idx((r1+ROWS) % ROWS, (c1+COLS) % COLS)])
+                if (mCurrentWorld[idx((r1+ROWS) % ROWS, (c1+COLS) % COLS)])
                     n++;
 
-        if (current_world[idx(r,c)])
+        if (mCurrentWorld[idx(r,c)])
             n--;
 
         return n;
