@@ -109,10 +109,15 @@ private:
                 int mx = mMousePosition.x;
                 int my = mMousePosition.y;
                 if (0 <= mx and mx < WIN_WIDTH and 0 <= my and my < WIN_HEIGHT) {
-                    int mGridIdx = idx(my / SQUARE_SIZE, mx / SQUARE_SIZE);
+                    int gridIdx = idx(my / SQUARE_SIZE, mx / SQUARE_SIZE);
 
-                    mGrid[mGridIdx].setFillColor(mCellColor);
-                    mCurrentWorld[mGridIdx] = true;
+                    if (mGrid[gridIdx].getFillColor() == sf::Color::White) {
+                        mGrid[gridIdx].setFillColor(mCellColor);
+                        mCurrentWorld[gridIdx] = true;
+                    } else {
+                        mGrid[gridIdx].setFillColor(sf::Color::White);
+                        mCurrentWorld[gridIdx] = false;
+                    }
                 }
             }
         }
