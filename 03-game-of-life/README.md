@@ -4,6 +4,6 @@ A cellular automaton with beautiful mathematical properties.
 ![alt tag](screenshots/life-screenshot.png)
 
 ## Controls
-   * Mouse click to toggle cell state
+   * Mouse click to toggle cell state, then `Enter` to start
    * `Esc` to pause
    * `r` to restart
